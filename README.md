@@ -19,9 +19,10 @@
 ## Быстрый запуск (рекомендуемый – через Docker Compose)
 
 1. **Клонируйте репозиторий**  
-   ```bash
+```bash
    git clone https://github.com/ваш-логин/WarehouseRentalApp.git
    cd WarehouseRentalApp
+```
 
 2.Убедитесь, что Docker Desktop запущен.
 
