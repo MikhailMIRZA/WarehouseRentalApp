@@ -1,0 +1,66 @@
+﻿@page "/"
+
+<h3>Главная - Система аренды складских помещений</h3>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>О системе</h5>
+            </div>
+            <div class="card-body">
+                <p>Добро пожаловать в систему аренды складских помещений. Здесь вы можете:</p>
+                <ul>
+                    <li>Просматривать доступные помещения</li>
+                    <li>Арендовать склады на нужные даты</li>
+                    <li>Управлять своими бронированиями</li>
+                </ul>
+                <p>Для начала работы перейдите в раздел <a href="storage.html">"Помещения"</a>.</p>
+
+                <div class="mt-4">
+                    <a href="storage.html" class="btn btn-primary">
+                        <i class="fas fa-boxes"></i> Посмотреть помещения
+                    </a>
+                    <a href="profile.html" class="btn btn-secondary ms-2">
+                        <i class="fas fa-calendar-alt"></i> Мои бронирования
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Статистика</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Всего помещений:</strong> <span class="badge bg-info">0</span>
+                </div>
+                <div class="mb-3">
+                    <strong>Свободно сейчас:</strong> <span class="badge bg-success">0</span>
+                </div>
+                <div>
+                    <strong>Ваших бронирований:</strong> <span class="badge bg-warning">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Быстрые действия</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="admin.html" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-cog"></i> Управление помещениями
+                    </a>
+                    <a href="storage.html" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-boxes"></i> Все помещения
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

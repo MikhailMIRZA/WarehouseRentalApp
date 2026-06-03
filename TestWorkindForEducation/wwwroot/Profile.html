@@ -1,0 +1,314 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль | СкладСтрой</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding-top: 20px;
+        }
+
+        .profile-card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .booking-card {
+            border-left: 4px solid #0d6efd;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+            .booking-card:hover {
+                transform: translateX(5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Навигация -->
+        <nav class="navbar navbar-light bg-white mb-4 rounded shadow-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold text-primary" href="storage.html">
+                    <i class="fas fa-warehouse"></i> СкладСтрой
+                </a>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="storage.html">
+                        <i class="fas fa-arrow-left me-1"></i> Вернуться к помещениям
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Основная карточка профиля -->
+                <div class="card profile-card mb-4">
+                    <div class="profile-header">
+                        <div class="avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h3 id="profile-name" class="mb-0">Загрузка...</h3>
+                        <p class="mb-0" id="profile-role">Пользователь</p>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-user me-2"></i> Личная информация
+                                </h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted">Имя</label>
+                                    <div class="form-control bg-light" id="info-name">Загрузка...</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted">Email</label>
+                                    <div class="form-control bg-light" id="info-email">Загрузка...</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted">ID пользователя</label>
+                                    <div class="form-control bg-light" id="info-id">Загрузка...</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted">Дата регистрации</label>
+                                    <div class="form-control bg-light" id="info-created">Загрузка...</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-history me-2"></i> История аренды
+                                </h5>
+
+                                <div id="bookings-history">
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Загрузка...</span>
+                                        </div>
+                                        <p class="mt-2 text-muted">Загрузка истории аренды...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-end">
+                        <button class="btn btn-outline-primary me-2" onclick="window.location.href='storage.html'">
+                            <i class="fas fa-arrow-left me-1"></i> Вернуться к помещениям
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка авторизации (используем storage_ ключи)
+        const userId = localStorage.getItem('storage_user_id');
+        const userRole = localStorage.getItem('storage_user_role');
+
+        if (!userId) {
+            window.location.href = 'storage.html';
+        }
+
+        // API URL
+        const BOOKINGS_API = 'http://localhost:5096/api/user/UserBookings';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadProfile();
+            loadBookingHistory();
+        });
+
+        function loadProfile() {
+            const userName = localStorage.getItem('storage_user_name') || 'Не указано';
+            const userEmail = localStorage.getItem('storage_user_email') || 'Не указан';
+            const userCreated = localStorage.getItem('storage_user_created');
+
+            document.getElementById('profile-name').textContent = userName;
+            document.getElementById('profile-role').textContent = userRole === 'admin' ? 'Администратор' : 'Пользователь';
+            document.getElementById('info-name').textContent = userName;
+            document.getElementById('info-email').textContent = userEmail;
+            document.getElementById('info-id').textContent = userId;
+
+            if (userCreated) {
+                const date = new Date(userCreated);
+                document.getElementById('info-created').textContent = date.toLocaleDateString('ru-RU');
+            } else {
+                document.getElementById('info-created').textContent = 'Не указана';
+            }
+        }
+
+        async function loadBookingHistory() {
+            if (userRole === 'admin') {
+                document.getElementById('bookings-history').innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            У администратора нет истории аренды
+                        </div>`;
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BOOKINGS_API}/my?userId=${userId}`);
+                if (response.ok) {
+                    const bookings = await response.json();
+                    renderBookingHistory(bookings);
+                } else {
+                    document.getElementById('bookings-history').innerHTML = `
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Не удалось загрузить историю аренды
+                            </div>`;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки истории:', error);
+                document.getElementById('bookings-history').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Ошибка загрузки истории аренды
+                        </div>`;
+            }
+        }
+
+        function renderBookingHistory(bookings) {
+            const container = document.getElementById('bookings-history');
+
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            У вас пока нет арендованных помещений
+                        </div>`;
+                return;
+            }
+
+            let html = '';
+
+            bookings.forEach(booking => {
+                const startDate = new Date(booking.startDate);
+                const endDate = new Date(booking.endDate);
+                const formattedStart = startDate.toLocaleDateString('ru-RU');
+                const formattedEnd = endDate.toLocaleDateString('ru-RU');
+                const unitLabel = booking.storageUnitName
+                    ? `${booking.storageUnitName} (${booking.storageUnitType || 'Склад'})`
+                    : `Помещение №${booking.storageUnitId}`;
+
+                html += `
+                        <div class="card booking-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title mb-1">${unitLabel}</h6>
+                                        <p class="card-text text-muted mb-1">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            ${formattedStart} - ${formattedEnd}
+                                        </p>
+                                        ${booking.notes ? `
+                                            <p class="card-text text-muted mb-0">
+                                                <i class="fas fa-sticky-note me-1"></i>
+                                                ${booking.notes}
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i> Подтверждено
+                                        </span>
+                                        <button class="btn btn-sm btn-outline-danger mt-2"
+                                                onclick="cancelBooking(${booking.id}, this)">
+                                            <i class="fas fa-times me-1"></i> Отменить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        async function cancelBooking(bookingId, button) {
+            if (!confirm('Вы уверены, что хотите отменить эту аренду?')) return;
+
+            try {
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+                const response = await fetch(`${BOOKINGS_API}/${bookingId}?userId=${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Аренда отменена!');
+                    loadBookingHistory();
+                } else {
+                    alert('Не удалось отменить аренду');
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-times me-1"></i> Отменить';
+                }
+            } catch (error) {
+                console.error('Ошибка отмены аренды:', error);
+                alert('Ошибка сети');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-times me-1"></i> Отменить';
+            }
+        }
+
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('storage_user_id');
+                localStorage.removeItem('storage_user_name');
+                localStorage.removeItem('storage_user_email');
+                localStorage.removeItem('storage_user_role');
+                localStorage.removeItem('storage_user_created');
+                window.location.href = 'storage.html';
+            }
+        }
+
+        // Если администратор, добавляем ссылку на админку
+        if (userRole === 'admin') {
+            const nav = document.querySelector('.navbar-nav');
+            const adminLink = document.createElement('a');
+            adminLink.className = 'nav-link';
+            adminLink.href = 'admin.html';
+            adminLink.innerHTML = '<i class="fas fa-user-cog me-1"></i> Админка';
+            nav.appendChild(adminLink);
+        }
+    </script>
+</body>
+</html>

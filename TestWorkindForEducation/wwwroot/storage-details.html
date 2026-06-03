@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали помещения | Kingsman Storage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .storage-gallery {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav-link {
+            color: #333;
+        }
+
+            .nav-link:hover {
+                color: #0d6efd;
+            }
+
+        .storage-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+            .thumbnail.active {
+                border-color: #0d6efd;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Навигация -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4 rounded shadow-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="/">
+                    <i class="fas fa-warehouse text-primary"></i> СкладСтрой
+                </a>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i> Главная</a>
+                    <a class="nav-link" href="/storage.html"><i class="fas fa-boxes"></i> Помещения</a>
+                    <a class="nav-link" href="/bookings.html"><i class="fas fa-calendar-check"></i> Бронирования</a>
+                    <a class="nav-link" href="/admin.html"><i class="fas fa-user-cog"></i> Админка</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Детали помещения -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Фото -->
+                    <div class="col-md-6">
+                        <div class="storage-gallery">
+                            <img id="main-image"
+                                 src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=400&fit=crop"
+                                 class="storage-image mb-3" alt="Помещение">
+
+                            <div class="d-flex gap-2">
+                                <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=80&h=60&fit=crop"
+                                     class="thumbnail active" onclick="changeImage(0)">
+                                <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=80&h=60&fit=crop"
+                                     class="thumbnail" onclick="changeImage(1)">
+                                <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=80&h=60&fit=crop"
+                                     class="thumbnail" onclick="changeImage(2)">
+                                <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=80&h=60&fit=crop"
+                                     class="thumbnail" onclick="changeImage(3)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Информация -->
+                    <div class="col-md-6">
+                        <h2 id="storage-title">Помещение Холод-1</h2>
+                        <p class="text-muted" id="storage-status">
+                            <span class="badge bg-success">Свободен</span>
+                        </p>
+
+                        <div class="mb-4">
+                            <h4><span id="storage-price" class="text-primary">3 000</span> ₽ / день</h4>
+                            <p id="storage-description">Холодильный склад с температурным режимом -18°C, оборудован видеонаблюдением.</p>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <p><i class="fas fa-ruler-combined text-primary"></i> <strong>Площадь:</strong> <span id="storage-area">30</span> м²</p>
+                                <p><i class="fas fa-thermometer-half text-primary"></i> <strong>Температурный режим:</strong> <span id="storage-temperature">-18°C</span></p>
+                            </div>
+                            <div class="col-6">
+                                <p><i class="fas fa-layer-group text-primary"></i> <strong>Тип склада:</strong> <span id="storage-type">Холодильный</span></p>
+                                <p><i class="fas fa-clock text-primary"></i> <strong>Доступ:</strong> <span id="storage-access">Круглосуточный</span></p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5><i class="fas fa-check-circle text-warning"></i> Оснащение</h5>
+                            <div class="row" id="storage-amenities">
+                                <div class="col-6">
+                                    <p><i class="fas fa-video text-success"></i> Видеонаблюдение</p>
+                                    <p><i class="fas fa-fire-extinguisher text-success"></i> Пожарная сигнализация</p>
+                                    <p><i class="fas fa-shield-alt text-success"></i> Охрана</p>
+                                </div>
+                                <div class="col-6">
+                                    <p><i class="fas fa-temperature-low text-success"></i> Контроль климата</p>
+                                    <p><i class="fas fa-truck-loading text-success"></i> Погрузочная зона</p>
+                                    <p><i class="fas fa-lock text-success"></i> Электронный доступ</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" onclick="bookThisStorage()">
+                                <i class="fas fa-calendar-plus"></i> Арендовать это помещение
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="window.history.back()">
+                                <i class="fas fa-arrow-left"></i> Назад к помещениям
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Массив изображений (реальные фото складов)
+        const storageImages = [
+            "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=400&fit=crop",
+            "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&h=400&fit=crop",
+            "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&h=400&fit=crop",
+            "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&h=400&fit=crop"
+        ];
+
+        // Получаем ID помещения из URL (по умолчанию 1)
+        const urlParams = new URLSearchParams(window.location.search);
+        const storageUnitId = urlParams.get('id') || 1;
+
+        // API URL для загрузки деталей
+        const API_URL = 'http://localhost:5096/api/admin/AdminStorageUnits';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Загрузка деталей помещения ID:', storageUnitId);
+            loadStorageUnitDetails(storageUnitId);
+        });
+
+        async function loadStorageUnitDetails(unitId) {
+            try {
+                // Пробуем получить данные из API
+                const response = await fetch(`${API_URL}/${unitId}`);
+                if (response.ok) {
+                    const unit = await response.json();
+                    updateStorageUI(unit);
+                } else {
+                    // Заглушка, если API недоступен
+                    const fallbackUnit = {
+                        id: unitId,
+                        name: unitId == 1 ? "Холод-1" : "Склад-" + unitId,
+                        type: unitId == 1 ? "Холодильный" : "Сухой",
+                        price: unitId == 1 ? 3000 : 2500,
+                        area: unitId == 1 ? 30 : 50,
+                        description: unitId == 1 ? "Холодильный склад с температурой -18°C" : "Сухой отапливаемый склад",
+                        isAvailable: true,
+                        temperature: unitId == 1 ? "-18°C" : "Стандартная",
+                        access: "Круглосуточный"
+                    };
+                    updateStorageUI(fallbackUnit);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                // Используем тестовые данные
+                const testUnit = {
+                    id: unitId,
+                    name: "Холод-1",
+                    type: "Холодильный",
+                    price: 3000,
+                    area: 30,
+                    description: "Холодильный склад с температурой -18°C",
+                    isAvailable: true,
+                    temperature: "-18°C",
+                    access: "Круглосуточный"
+                };
+                updateStorageUI(testUnit);
+            }
+        }
+
+        function updateStorageUI(unit) {
+            // Заголовок
+            document.getElementById('storage-title').textContent = `Помещение ${unit.name}`;
+            // Статус
+            const statusBadge = document.getElementById('storage-status');
+            if (unit.isAvailable) {
+                statusBadge.innerHTML = '<span class="badge bg-success">Свободен</span>';
+            } else {
+                statusBadge.innerHTML = '<span class="badge bg-danger">Занят</span>';
+                // Делаем кнопку аренды неактивной
+                const bookBtn = document.querySelector('.btn-primary');
+                if (bookBtn) {
+                    bookBtn.disabled = true;
+                    bookBtn.innerHTML = '<i class="fas fa-times"></i> Помещение занято';
+                }
+            }
+
+            // Цена
+            document.getElementById('storage-price').textContent = (unit.price || 0).toLocaleString();
+            // Тип склада
+            document.getElementById('storage-type').textContent = unit.type || 'Не указан';
+            // Площадь
+            document.getElementById('storage-area').textContent = unit.area || 0;
+            // Описание
+            document.getElementById('storage-description').textContent = unit.description || '';
+            // Температурный режим
+            document.getElementById('storage-temperature').textContent = unit.temperature || 'Стандартный';
+            // Доступ
+            document.getElementById('storage-access').textContent = unit.access || 'Круглосуточный';
+        }
+
+        // Смена изображения
+        function changeImage(index) {
+            document.getElementById('main-image').src = storageImages[index];
+            // Обновляем активную миниатюру
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                if (i === index) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        // Переход к бронированию (можно сделать модальное окно или переход на страницу)
+        function bookThisStorage() {
+            const unitId = new URLSearchParams(window.location.search).get('id') || 1;
+            
+            window.location.href = `/profile.html?openBooking=${unitId}`;
+        }
+    </script>
+</body>
+</html>
+

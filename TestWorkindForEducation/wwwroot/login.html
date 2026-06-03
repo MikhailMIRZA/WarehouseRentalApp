@@ -1,0 +1,433 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аренда помещения | СкладСтрой Storage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .booking-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .unit-info-card {
+            background: #e9f7fe;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .nav-link {
+            color: #333;
+        }
+
+            .nav-link:hover {
+                color: #0d6efd;
+            }
+
+        #booking-history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Навигация -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4 rounded shadow-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="/">
+                    <i class="fas fa-warehouse text-primary"></i> СкладСтрой Storage
+                </a>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="/navmenu.html"><i class="fas fa-home"></i> Главная</a>
+                    <a class="nav-link" href="/storage.html"><i class="fas fa-boxes"></i> Помещения</a>
+                    <a class="nav-link active" href="/login.html"><i class="fas fa-calendar-check"></i> Аренда</a>
+                    <a class="nav-link" href="/admin.html"><i class="fas fa-user-cog"></i> Админка</a>
+                </div>
+            </div>
+        </nav>
+
+        <h2 class="mb-4"><i class="fas fa-calendar-alt text-primary"></i> Аренда помещения</h2>
+
+        <!-- Выбор помещения -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-boxes"></i> Выберите помещение</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Помещение</label>
+                    <select id="unit-select" class="form-select" onchange="updateUnitInfo()">
+                        <option value="">-- Выберите помещение --</option>
+                    </select>
+                </div>
+
+                <div id="unit-info" class="unit-info-card p-3 mb-3" style="display: none;">
+                    <h5 id="unit-name"></h5>
+                    <p class="mb-1"><strong>Тип склада:</strong> <span id="unit-type"></span></p>
+                    <p class="mb-1"><strong>Цена:</strong> <span id="unit-price" class="text-primary"></span> ₽/день</p>
+                    <p class="mb-1"><strong>Площадь:</strong> <span id="unit-area"></span> м²</p>
+                    <p class="mb-0"><strong>Описание:</strong> <span id="unit-description"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Форма аренды -->
+        <div class="booking-form">
+            <h4 class="mb-4 text-center"><i class="fas fa-user-check"></i> Данные арендатора</h4>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Имя *</label>
+                    <input type="text" id="guest-name" class="form-control" placeholder="Иван Иванов" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email *</label>
+                    <input type="email" id="guest-email" class="form-control" placeholder="ivan@example.com" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Телефон *</label>
+                    <input type="tel" id="guest-phone" class="form-control" placeholder="+7 (999) 123-45-67" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Компания</label>
+                    <input type="text" id="guest-company" class="form-control" placeholder="ООО Ромашка">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Дата начала аренды *</label>
+                    <input type="date" id="checkin-date" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Дата окончания аренды *</label>
+                    <input type="date" id="checkout-date" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Примечания</label>
+                <textarea id="special-requests" class="form-control" rows="3" placeholder="Температурный режим, особые условия доступа..."></textarea>
+            </div>
+
+            <div id="price-calculation" class="alert alert-info" style="display: none;">
+                <h6>Стоимость аренды:</h6>
+                <p id="price-details" class="mb-0"></p>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button class="btn btn-secondary" onclick="window.location.href='/storage.html'">
+                    <i class="fas fa-arrow-left"></i> Назад к помещениям
+                </button>
+                <button class="btn btn-primary" onclick="submitBooking()">
+                    <i class="fas fa-check"></i> Подтвердить аренду
+                </button>
+            </div>
+        </div>
+
+        <!-- История бронирований -->
+        <div class="card mt-5">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history"></i> Моя история аренды</h5>
+            </div>
+            <div class="card-body">
+                <div id="booking-history">
+                    <p class="text-center text-muted">Загрузка истории аренды...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Уведомления -->
+        <div id="notification" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+    </div>
+
+    <script>
+        // API URLs – новые эндпоинты
+        const API_URL = 'http://localhost:5096/api/admin/AdminStorageUnits';
+        const BOOKINGS_API = 'http://localhost:5096/api/user/UserBookings';
+        let units = [];
+        let bookings = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Страница аренды загружена');
+            loadUnits();
+            loadBookingHistory();
+            setupDateInputs();
+        });
+
+        async function loadUnits() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Ошибка API');
+
+                units = await response.json();
+                console.log('Загружено помещений:', units.length);
+
+                const select = document.getElementById('unit-select');
+                select.innerHTML = '<option value="">-- Выберите помещение --</option>';
+
+                units.forEach(unit => {
+                    if (unit.isAvailable) {
+                        const option = document.createElement('option');
+                        option.value = unit.id;
+                        option.textContent = `${unit.name} - ${unit.type || 'Склад'} (${unit.price.toLocaleString()} ₽/день, ${unit.area || 0} м²)`;
+                        select.appendChild(option);
+                    }
+                });
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const unitId = urlParams.get('unitId') || urlParams.get('storageUnitId');
+                if (unitId) {
+                    select.value = unitId;
+                    updateUnitInfo();
+                }
+
+            } catch (error) {
+                console.error('Ошибка загрузки помещений:', error);
+                showError('Не удалось загрузить помещения');
+            }
+        }
+
+        function updateUnitInfo() {
+            const unitId = document.getElementById('unit-select').value;
+            const unit = units.find(u => u.id == unitId);
+            const infoDiv = document.getElementById('unit-info');
+
+            if (unit) {
+                document.getElementById('unit-name').textContent = `Помещение ${unit.name}`;
+                document.getElementById('unit-type').textContent = unit.type || 'Не указан';
+                document.getElementById('unit-price').textContent = (unit.price || 0).toLocaleString();
+                document.getElementById('unit-area').textContent = unit.area || 0;
+                document.getElementById('unit-description').textContent = unit.description || '';
+                infoDiv.style.display = 'block';
+                calculatePrice();
+            } else {
+                infoDiv.style.display = 'none';
+                document.getElementById('price-calculation').style.display = 'none';
+            }
+        }
+
+        function setupDateInputs() {
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+            document.getElementById('checkin-date').min = today;
+            document.getElementById('checkin-date').value = today;
+            document.getElementById('checkout-date').min = tomorrowStr;
+            document.getElementById('checkout-date').value = tomorrowStr;
+
+            document.getElementById('checkin-date').addEventListener('change', calculatePrice);
+            document.getElementById('checkout-date').addEventListener('change', calculatePrice);
+        }
+
+        function calculatePrice() {
+            const unitId = document.getElementById('unit-select').value;
+            const checkin = document.getElementById('checkin-date').value;
+            const checkout = document.getElementById('checkout-date').value;
+            const unit = units.find(u => u.id == unitId);
+
+            if (!unit || !checkin || !checkout) return;
+
+            const checkinDate = new Date(checkin);
+            const checkoutDate = new Date(checkout);
+            const days = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+
+            if (days > 0) {
+                const totalPrice = unit.price * days;
+                document.getElementById('price-details').innerHTML =
+                    `${days} дн. × ${unit.price.toLocaleString()} ₽ = <strong>${totalPrice.toLocaleString()} ₽</strong>`;
+                document.getElementById('price-calculation').style.display = 'block';
+            }
+        }
+
+        async function submitBooking() {
+            const unitId = document.getElementById('unit-select').value;
+            const guestName = document.getElementById('guest-name').value.trim();
+            const guestEmail = document.getElementById('guest-email').value.trim();
+            const guestPhone = document.getElementById('guest-phone').value.trim();
+            const guestCompany = document.getElementById('guest-company').value.trim();
+            const checkin = document.getElementById('checkin-date').value;
+            const checkout = document.getElementById('checkout-date').value;
+            const requests = document.getElementById('special-requests').value.trim();
+
+            if (!unitId || !guestName || !guestEmail || !guestPhone || !checkin || !checkout) {
+                showError('Заполните все обязательные поля (*)');
+                return;
+            }
+
+            if (new Date(checkout) <= new Date(checkin)) {
+                showError('Дата окончания должна быть позже даты начала');
+                return;
+            }
+
+            const unit = units.find(u => u.id == unitId);
+
+            const bookingData = {
+                storageUnitId: parseInt(unitId),
+                userId: guestEmail,
+                userName: guestName,
+                userEmail: guestEmail,
+                startDate: new Date(checkin + 'T00:00:00Z').toISOString(),
+                endDate: new Date(checkout + 'T00:00:00Z').toISOString(),
+                notes: `${guestPhone ? 'Тел: ' + guestPhone : ''}${guestCompany ? ' | Компания: ' + guestCompany : ''}${requests ? ' | Примечания: ' + requests : ''}`
+            };
+
+            console.log('Отправка аренды:', bookingData);
+
+            try {
+                const response = await fetch(BOOKINGS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookingData)
+                });
+
+                if (response.ok) {
+                    showSuccess('Аренда успешно оформлена!');
+                    document.getElementById('guest-name').value = '';
+                    document.getElementById('guest-email').value = '';
+                    document.getElementById('guest-phone').value = '';
+                    document.getElementById('guest-company').value = '';
+                    document.getElementById('special-requests').value = '';
+                    loadBookingHistory();
+                } else {
+                    const error = await response.text();
+                    showError('Ошибка: ' + error);
+                }
+            } catch (error) {
+                showError('Ошибка сети: ' + error.message);
+            }
+        }
+
+        async function loadBookingHistory() {
+            try {
+                const response = await fetch(`${BOOKINGS_API}/my?userId=${localStorage.getItem('storage_user_id') || 'guest'}`);
+                if (response.ok) {
+                    const bookings = await response.json();
+                    renderBookings(bookings);
+                } else {
+                    // Тестовые данные при недоступности API
+                    bookings = [
+                        {
+                            id: 1,
+                            storageUnitName: "Холод-1",
+                            storageUnitType: "Холодильный",
+                            userName: "Иван Иванов",
+                            startDate: "2025-05-10T00:00:00Z",
+                            endDate: "2025-05-15T00:00:00Z",
+                            totalPrice: 15000,
+                            status: "Confirmed"
+                        }
+                    ];
+                    renderBookings(bookings);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки истории:', error);
+            }
+        }
+
+        function renderBookings(bookings) {
+            const container = document.getElementById('booking-history');
+
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">У вас пока нет арендованных помещений</p>';
+                return;
+            }
+
+            let html = '<div class="list-group">';
+
+            bookings.forEach(booking => {
+                const startDate = new Date(booking.startDate);
+                const endDate = new Date(booking.endDate);
+                const formattedStart = startDate.toLocaleDateString('ru-RU');
+                const formattedEnd = endDate.toLocaleDateString('ru-RU');
+                const unitLabel = booking.storageUnitName
+                    ? `${booking.storageUnitName} (${booking.storageUnitType || ''})`
+                    : `Помещение №${booking.storageUnitId}`;
+                const statusClass = booking.status === 'Confirmed' ? 'success' : 'warning';
+                const statusText = booking.status === 'Confirmed' ? 'Подтверждено' : 'Ожидание';
+
+                html += `
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">${unitLabel}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user"></i> ${booking.userName || ''} |
+                                        <i class="fas fa-calendar"></i> ${formattedStart} - ${formattedEnd}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-${statusClass}">${statusText}</span>
+                                    <div class="mt-1">
+                                        <strong>${(booking.totalPrice || 0).toLocaleString()} ₽</strong>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger mt-1" onclick="cancelBooking(${booking.id})">
+                                        <i class="fas fa-times"></i> Отменить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('Отменить эту аренду?')) return;
+
+            try {
+                const userId = localStorage.getItem('storage_user_id') || 'guest';
+                const response = await fetch(`${BOOKINGS_API}/${bookingId}?userId=${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showSuccess('Аренда отменена');
+                    loadBookingHistory();
+                } else {
+                    showError('Не удалось отменить аренду');
+                }
+            } catch (error) {
+                console.error('Ошибка отмены аренды:', error);
+                showError('Ошибка сети');
+            }
+        }
+
+        function showError(message) {
+            showNotification(message, 'danger');
+        }
+
+        function showSuccess(message) {
+            showNotification(message, 'success');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.innerHTML = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
+                    </div>`;
+            notification.style.display = 'block';
+            setTimeout(() => { notification.style.display = 'none'; }, 5000);
+        }
+    </script>
+</body>
+</html>

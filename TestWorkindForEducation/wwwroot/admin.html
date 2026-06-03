@@ -1,0 +1,599 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | CкладСтрой</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8f9fa;
+            padding-top: 20px;
+        }
+
+        .admin-card {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            color: white;
+            border: none;
+        }
+
+        .unit-status-available {
+            border-left: 4px solid #198754;
+        }
+
+        .unit-status-booked {
+            border-left: 4px solid #dc3545;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Навигация -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 rounded">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="#">
+                    <i class="fas fa-user-cog"></i> Админ-панель
+                </a>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="storage.html">
+                        <i class="fas fa-boxes me-1"></i> Помещения
+                    </a>
+                    <a class="nav-link" href="Profile.html">
+                        <i class="fas fa-user me-1"></i> Профиль
+                    </a>
+                    <button class="btn btn-sm btn-outline-light ms-3" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Информация администратора -->
+        <div class="alert alert-info mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-user-shield fa-2x me-3"></i>
+                <div>
+                    <h5 class="mb-1" id="adminGreeting">Загрузка...</h5>
+                    <p class="mb-0">Вы вошли как администратор системы</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <!-- Статистика -->
+            <div class="col-md-3">
+                <div class="card stats-card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-boxes fa-3x mb-3"></i>
+                        <h2 id="totalUnits">0</h2>
+                        <p class="mb-0">Всего помещений</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                        <h2 id="availableUnits">0</h2>
+                        <p class="mb-0">Свободных</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-times-circle fa-3x mb-3"></i>
+                        <h2 id="bookedUnits">0</h2>
+                        <p class="mb-0">Занято</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card admin-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-alt fa-3x mb-3"></i>
+                        <h2 id="totalBookings">0</h2>
+                        <p class="mb-0">Бронирований</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладки -->
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="units-tab" data-bs-toggle="tab"
+                        data-bs-target="#units-content" type="button">
+                    <i class="fas fa-boxes me-1"></i> Управление помещениями
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="bookings-tab" data-bs-toggle="tab"
+                        data-bs-target="#bookings-content" type="button">
+                    <i class="fas fa-calendar-alt me-1"></i> Все бронирования
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="add-unit-tab" data-bs-toggle="tab"
+                        data-bs-target="#add-unit-content" type="button">
+                    <i class="fas fa-plus-circle me-1"></i> Добавить помещение
+                </button>
+            </li>
+        </ul>
+
+        <!-- Контент вкладок -->
+        <div class="tab-content" id="adminTabsContent">
+            <!-- Вкладка: Управление помещениями -->
+            <div class="tab-pane fade show active" id="units-content">
+                <div class="card admin-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-boxes me-2"></i> Список помещений
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Название</th>
+                                        <th>Тип склада</th>
+                                        <th>Цена (период)</th>
+                                        <th>Площадь</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="unitsTable">
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Загрузка...</span>
+                                            </div>
+                                            <p class="mt-2">Загрузка помещений...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Все бронирования -->
+            <div class="tab-pane fade" id="bookings-content">
+                <div class="card admin-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i> Все бронирования
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="allBookings">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Загрузка...</span>
+                                </div>
+                                <p class="mt-2">Загрузка бронирований...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Добавить помещение -->
+            <div class="tab-pane fade" id="add-unit-content">
+                <div class="card admin-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i> Добавить новое помещение
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="addUnitForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Название помещения *</label>
+                                        <input type="text" class="form-control" id="unitName"
+                                               placeholder="Например: Холод-5" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Тип склада *</label>
+                                        <select class="form-select" id="unitType" required>
+                                            <option value="">Выберите тип</option>
+                                            <option value="Сухой">Сухой</option>
+                                            <option value="Холодильный">Холодильный</option>
+                                            <option value="Морозильный">Морозильный</option>
+                                            <option value="Универсальный">Универсальный</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Цена за период (₽) *</label>
+                                        <input type="number" class="form-control" id="unitPrice"
+                                               placeholder="Например: 3000" min="0" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Площадь (м²) *</label>
+                                        <input type="number" class="form-control" id="unitArea"
+                                               placeholder="Например: 50" min="1" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Описание</label>
+                                        <textarea class="form-control" id="unitDescription"
+                                                  rows="3" placeholder="Охлаждаемый склад с погрузочной зоной..."></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Статус</label>
+                                        <select class="form-select" id="unitStatus">
+                                            <option value="true">Свободен</option>
+                                            <option value="false">Занят</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Оснащение</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="Видеонаблюдение" id="amenityVideo">
+                                    <label class="form-check-label" for="amenityVideo">Видеонаблюдение</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="Пожарная сигнализация" id="amenityFire">
+                                    <label class="form-check-label" for="amenityFire">Пожарная сигнализация</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="Круглосуточный доступ" id="amenityAccess">
+                                    <label class="form-check-label" for="amenityAccess">Круглосуточный доступ</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="Погрузочная зона" id="amenityLoading">
+                                    <label class="form-check-label" for="amenityLoading">Погрузочная зона</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="Охрана" id="amenitySecurity">
+                                    <label class="form-check-label" for="amenitySecurity">Охрана</label>
+                                </div>
+                            </div>
+
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" onclick="resetAddForm()">
+                                    <i class="fas fa-times me-1"></i> Сбросить
+                                </button>
+                                <button type="submit" class="btn btn-primary ms-2">
+                                    <i class="fas fa-plus me-1"></i> Добавить помещение
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // API URL – теперь для помещений
+        const API_URL = 'http://localhost:5096/api/admin/AdminStorageUnits';
+        const BOOKINGS_API = 'http://localhost:5096/api/user/UserBookings';
+
+        // Проверка авторизации администратора (используем storage_ ключи)
+        const userRole = localStorage.getItem('storage_user_role');
+        const userId = localStorage.getItem('storage_user_id');
+
+        if (!userId || userRole !== 'admin') {
+            alert('Доступ запрещен. Требуются права администратора.');
+            window.location.href = 'storage.html'; 
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadAdminInfo();
+            loadUnits();
+            loadAllBookings();
+            setupEventListeners();
+        });
+
+        function loadAdminInfo() {
+            const adminName = localStorage.getItem('storage_user_name') || 'Администратор';
+            document.getElementById('adminGreeting').textContent = `Добро пожаловать, ${adminName}!`;
+        }
+
+        // Загрузка помещений
+        async function loadUnits() {
+            try {
+                const response = await fetch(API_URL);
+                if (response.ok) {
+                    const units = await response.json();
+                    updateStats(units);
+                    renderUnitsTable(units);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки помещений:', error);
+            }
+        }
+
+        // Статистика по помещениям
+        function updateStats(units) {
+            const total = units.length;
+            const available = units.filter(u => u.isAvailable).length;
+            const booked = total - available;
+
+            document.getElementById('totalUnits').textContent = total;
+            document.getElementById('availableUnits').textContent = available;
+            document.getElementById('bookedUnits').textContent = booked;
+        }
+
+        // Таблица помещений
+        function renderUnitsTable(units) {
+            const tableBody = document.getElementById('unitsTable');
+
+            if (!units || units.length === 0) {
+                tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">
+                                <i class="fas fa-boxes fa-2x mb-2"></i>
+                                <p>Нет помещений для отображения</p>
+                            </td>
+                        </tr>`;
+                return;
+            }
+
+            let html = '';
+            units.forEach(unit => {
+                const statusText = unit.isAvailable ? 'Свободен' : 'Занят';
+                const statusClass = unit.isAvailable ? 'success' : 'danger';
+                const statusIcon = unit.isAvailable ? 'fa-check-circle' : 'fa-times-circle';
+
+                html += `
+                        <tr class="${unit.isAvailable ? 'unit-status-available' : 'unit-status-booked'}">
+                            <td>${unit.id}</td>
+                            <td><strong>${unit.name}</strong></td>
+                            <td>${unit.type || 'Не указан'}</td>
+                            <td>${(unit.price || 0).toLocaleString()} ₽</td>
+                            <td>${unit.area || 0} м²</td>
+                            <td>
+                                <span class="badge bg-${statusClass}">
+                                    <i class="fas ${statusIcon} me-1"></i>${statusText}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1"
+                                        onclick="editUnit(${unit.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteUnit(${unit.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-${unit.isAvailable ? 'warning' : 'success'} ms-1"
+                                        onclick="toggleUnitStatus(${unit.id}, ${!unit.isAvailable})">
+                                    <i class="fas ${unit.isAvailable ? 'fa-lock' : 'fa-unlock'}"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+            });
+
+            tableBody.innerHTML = html;
+        }
+
+        // Загрузка всех бронирований (заглушка, пока нет endpoint)
+        async function loadAllBookings() {
+            try {
+                const response = await fetch(BOOKINGS_API);
+                if (response.ok) {
+                    const bookings = await response.json();
+                    document.getElementById('totalBookings').textContent = bookings.length;
+                    renderAllBookings(bookings);
+                } else {
+                    showMockBookings();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки бронирований:', error);
+                showMockBookings();
+            }
+        }
+
+        function showMockBookings() {
+            const mockBookings = [
+                {
+                    id: 1, storageUnitId: 1, userName: "Иван Иванов", userEmail: "ivan@test.com",
+                    startDate: "2025-05-10T00:00:00Z", endDate: "2025-05-15T00:00:00Z"
+                },
+                {
+                    id: 2, storageUnitId: 2, userName: "Петр Петров", userEmail: "petr@test.com",
+                    startDate: "2025-06-01T00:00:00Z", endDate: "2025-06-10T00:00:00Z"
+                }
+            ];
+            document.getElementById('totalBookings').textContent = mockBookings.length;
+            renderAllBookings(mockBookings);
+        }
+
+        function renderAllBookings(bookings) {
+            const container = document.getElementById('allBookings');
+
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Нет активных бронирований
+                        </div>`;
+                return;
+            }
+
+            let html = '<div class="list-group">';
+            bookings.forEach(booking => {
+                const startDate = new Date(booking.startDate);
+                const endDate = new Date(booking.endDate);
+                html += `
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Бронирование #${booking.id}</h6>
+                                    <p class="mb-1">Помещение: ${booking.storageUnitId || '—'} | Арендатор: ${booking.userName}</p>
+                                    <small class="text-muted">
+                                        ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()} |
+                                        Email: ${booking.userEmail}
+                                    </small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="cancelAdminBooking(${booking.id})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('addUnitForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                await addNewUnit();
+            });
+        }
+
+        async function addNewUnit() {
+            const amenities = [];
+            if (document.getElementById('amenityVideo').checked) amenities.push('Видеонаблюдение');
+            if (document.getElementById('amenityFire').checked) amenities.push('Пожарная сигнализация');
+            if (document.getElementById('amenityAccess').checked) amenities.push('Круглосуточный доступ');
+            if (document.getElementById('amenityLoading').checked) amenities.push('Погрузочная зона');
+            if (document.getElementById('amenitySecurity').checked) amenities.push('Охрана');
+
+            const unitData = {
+                name: document.getElementById('unitName').value,
+                type: document.getElementById('unitType').value,
+                price: parseInt(document.getElementById('unitPrice').value),
+                area: parseFloat(document.getElementById('unitArea').value),
+                description: document.getElementById('unitDescription').value,
+                amenities: amenities,
+                isAvailable: document.getElementById('unitStatus').value === 'true'
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(unitData)
+                });
+
+                if (response.ok) {
+                    alert('Помещение успешно добавлено!');
+                    resetAddForm();
+                    loadUnits();
+                } else {
+                    alert('Ошибка при добавлении помещения');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка сети');
+            }
+        }
+
+        function resetAddForm() {
+            document.getElementById('addUnitForm').reset();
+        }
+
+        async function toggleUnitStatus(unitId, newStatus) {
+            try {
+                const response = await fetch(`${API_URL}/${unitId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isAvailable: newStatus })
+                });
+
+                if (response.ok) {
+                    alert(`Статус помещения ${newStatus ? 'освобождён' : 'занят'}`);
+                    loadUnits();
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка обновления статуса');
+            }
+        }
+
+        async function deleteUnit(unitId) {
+            if (!confirm('Вы уверены, что хотите удалить это помещение?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${unitId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Помещение удалено!');
+                    loadUnits();
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка удаления помещения');
+            }
+        }
+
+        function editUnit(unitId) {
+            alert(`Функция редактирования помещения ID ${unitId} пока не реализована.`);
+        }
+
+        async function cancelAdminBooking(bookingId) {
+            if (!confirm('Вы уверены, что хотите отменить это бронирование?')) return;
+
+            try {
+                const response = await fetch(`${BOOKINGS_API}/${bookingId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Бронирование отменено!');
+                    loadAllBookings();
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка отмены бронирования');
+            }
+        }
+
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                
+                localStorage.removeItem('storage_user_id');
+                localStorage.removeItem('storage_user_name');
+                localStorage.removeItem('storage_user_email');
+                localStorage.removeItem('storage_user_role');
+                localStorage.removeItem('storage_user_created');
+                window.location.href = 'storage.html';  
+            }
+        }
+
+        // Автообновление каждые 30 секунд
+        setInterval(() => {
+            loadUnits();
+            loadAllBookings();
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+﻿@inherits LayoutComponentBase
+@using MudBlazor
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+    
+    <main class="main">
+        <div class="content">
+            @Body
+        </div>
+    </main>
+</div>
+
+<style>
+    .page {
+        display: flex;
+        height: 100vh;
+    }
+    
+    .sidebar {
+        width: 250px;
+        background-color: #2c3e50;
+        color: white;
+    }
+    
+    .main {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+</style>
